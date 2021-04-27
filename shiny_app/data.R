@@ -10,6 +10,7 @@ library(gtsummary)
 library(nycgeo)
 library(sf)
 library(patchwork)
+library(webshot)
 
 
 # table will be the starting framework containing the relevant subgroups so that
@@ -212,105 +213,14 @@ math_test_plot <- data %>%
        caption = "Source: NYSED (2018)",
        fill = "Racial Subgroup")
 
-# test_data <- data %>%
-#   select(-district) %>%
-#   pivot_longer(cols = g3_ela:g8_math,
-#                names_to = "test",
-#                values_to = "proficiency")
-#
-# fit_1 will model (racial subgroup) as a factor of proficiency
-# 
-# fit_1 <- stan_glm(data = test_data,
-#                       formula = proficiency ~ subgroup,
-#                       family = gaussian,
-#                       seed = 3,
-#                       refresh = 0)
+test_data <- data %>%
+  select(-district) %>%
+  pivot_longer(cols = g3_ela:g8_math,
+               names_to = "test",
+               values_to = "proficiency")
 
-# Saving fitted model to use in my regression table in shiny app without
-# refitting it live
-#
-# saveRDS(fit_1, "shiny_app/fit_1.rds")
-
-saved_fit_1 <- readRDS("shiny_app/fit_1.rds")
-
-table_1 <- tbl_regression(saved_fit_1, 
-               intercept = TRUE,
-               estimate_fun = function(x) style_sigfig(x, digits = 3)) %>%
-  
-  as_gt() %>%
-  
-  # Formatting the table neatly and intuitively
-  
-  tab_header(title = md("**Predicting Proficiency Percentage of Racial Groups on State Exams**"),
-             subtitle = "How Racial Subgroup Affects Predicted Academic Proficiency") %>%
-  tab_source_note(md("Source: NYSED (2018)")) %>% 
-  cols_label(estimate = md("**Parameter**"))
-
-# newobs = tibble(subgroup = c("All Students", "American Indian or Alaska
-# Native","Asian or Native Hawaiian/Other Pacific Islander", "Black or African
-# American", "Hispanic or Latino", "White", "All Students"))
-#
-# pe <- posterior_epred(fit_1, newdata = newobs) %>% as_tibble() %>%
-# set_names(newobs$subgroup)
-#
-# plot_data <- pe %>% pivot_longer(names_to = c("Subgroup"), values_to =
-# "Proficiency", cols = everything()) %>% filter(!Subgroup == "All Students")
-#
-# racial_prediction <- plot_data %>% ggplot(aes(x = Proficiency, y =
-# fct_reorder(Subgroup, Proficiency), fill = "black")) +
-# scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
-# stat_slab() + theme_light() + theme(legend.position = "none") + labs(title =
-# "Looking at Race as an Indication of Performance on State Test Results", x =
-# "Proficiency Rates", y = "", caption = "Source: NYSED (2018)", fill =
-# "Subgroup")
-#
-# ggsave("racial_group_pred.png", racial_prediction, width = 10, height = 7)
-#
-# grade_data <- data %>% select(-district) %>% pivot_longer(cols =
-# g3_ela:g8_math,
-#
-# # Manipulating data to be able to be able to consider grade as a # factor
-#
-# names_to = c("grade", "test"), names_sep = "_", values_to = "proficiency")
-#
-#
-# # fit_2 will allow us to look at proficiency as a factor of both grade and #
-# racial subgroup
-#
-# fit_2 <- stan_glm(data = grade_data, formula = proficiency ~ grade*subgroup,
-# family = gaussian, seed = 3, refresh = 0)
-
-# grade <- c(3, 4, 5, 6, 7, 8)
-# subgroup <- c("All Students", "American Indian or Alaska Native","Asian or Native Hawaiian/Other Pacific Islander", "Black or African American", "Hispanic or Latino", "White", "All Students")
-# 
-# newobs_3 <- expand_grid(grade, subgroup) %>%
-#   mutate(names = paste(grade, subgroup, sep = "_"))
-# 
-# pe_3 <- posterior_epred(fit_2,
-#                         newdata = newobs_3) %>%
-#   as_tibble() %>%
-#   set_names(newobs_3$names)
-# 
-# plot_data_3 <- pe_3 %>%
-#   pivot_longer(names_to = c("Grade", "Subgroup"),
-#                names_sep = "_",
-#                values_to = "Proficiency",
-#                cols = everything()) %>%
-#   filter(!Subgroup == "All Students")
-# 
-# 
-# grade_pred <- plot_data_3 %>%
-#   ggplot(aes(x = Proficiency, y = fct_reorder(Subgroup, Proficiency),
-#              fill = Grade)) +
-#   stat_slab() +
-#   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
-#   labs(title = "Expected Peformance on State Test Results Over Time",
-#        x = "Proficiency Rates",
-#        y = "",
-#        caption = "Source: NYSED (2018)") +
-#   theme_light()
-# 
-# ggsave("grade_prediction.png", grade_pred, width = 10, height = 7)
+# Combining the two datasets of demographic data and academic data for
+# manipulation
 
 combined_data <- full_join(data, race_data, by = c("district" = "administrative_district")) %>%
   drop_na()
@@ -324,16 +234,8 @@ combined_data %>%
                        color = subgroup)) +
   geom_point()
 
-# With this model, we can see whether or not the predominant racial makeup of a
-# district actually does affect how students of a racial group perform within
-# that district
-# 
-# fit_3 <- stan_glm(data = combined_data,
-#                   formula = g8_math ~ percent_black*subgroup,
-#                   family = gaussian,
-#                   seed = 3,
-#                   refresh = 0)
-
+# With these plots, we can see whether or not the racial makeup of a district
+# affects how students of different racial groups perform within that district
 
 district_asian <- combined_data %>%
   filter(!subgroup == "All Students") %>%
@@ -429,6 +331,9 @@ ela_map <- nyc_boundaries(geography = "school") %>%
   theme_void()
 
 math_map <- nyc_boundaries(geography = "school") %>%
+  
+  # Joining based on district with provided geography
+  
   left_join(map_data, by = c("school_dist_id" = "district")) %>%
   ggplot() +
   geom_sf(aes(fill = g8_math * 100)) +
