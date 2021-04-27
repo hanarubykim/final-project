@@ -5,10 +5,9 @@ account: hanarubykim
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4022419
-bundleId: 4521777
+bundleId: 4523674
 url: https://hanarubykim.shinyapps.io/final-project/
-when: 1619461547.84979
-lastSyncTime: 1619461547.84979
+when: 1619503043.94307
+lastSyncTime: 1619503043.94308
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: data_compilation.html|data_compilation.Rmd

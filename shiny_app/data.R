@@ -2,7 +2,6 @@ library(tidyverse)
 library(readxl)
 library(janitor)
 library(openxlsx)
-# library(rstanarm)
 library(ggdist)
 library(broom.mixed)
 library(ggthemes)
@@ -232,7 +231,6 @@ math_test_plot <- data %>%
 #
 # saveRDS(fit_1, "shiny_app/fit_1.rds")
 
-
 saved_fit_1 <- readRDS("shiny_app/fit_1.rds")
 
 table_1 <- tbl_regression(saved_fit_1, 
@@ -325,7 +323,6 @@ combined_data %>%
   ggplot(mapping = aes(x = percent_black, y = g8_math, 
                        color = subgroup)) +
   geom_point()
-
 
 # With this model, we can see whether or not the predominant racial makeup of a
 # district actually does affect how students of a racial group perform within
