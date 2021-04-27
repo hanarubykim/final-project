@@ -13,6 +13,8 @@ library(rstanarm)
 library(ggdist)
 library(broom.mixed)
 library(ggthemes)
+library(nycgeo)
+library(sf)
 ```
 
 ```{r}
@@ -131,10 +133,23 @@ data <- grade_proficiency(filepaths, table) %>%
   filter(across(everything(), ~ !grepl("—", .))) %>%
   filter(!subgroup == "Multiracial") %>%
   drop_na() %>%
-  mutate_each(funs(as.numeric(gsub("%", "", ., fixed = TRUE))/100), -subgroup)
+  mutate_each(funs(as.numeric(gsub("%", "", ., fixed = TRUE))/100), -c(subgroup, district))
 
 data
 test_data <- data
+
+data %>%
+  filter(district == 1) %>%
+  pivot_longer(cols = g3_ela:g8_math,
+               names_to = c("grade", "test"),
+               names_sep = "_",
+               values_to = "proficiency") %>%
+  mutate_each(funs(as.numeric(gsub("g", "", ., fixed = TRUE))), -c("subgroup", "test", "proficiency")) %>%
+  group_by(grade) %>%
+  mutate(avg_prof = mean(proficiency)) %>%
+  ggplot(mapping = aes(x = grade, y = avg_prof * 100)) +
+  geom_line()
+  
 
 ```
 
@@ -150,7 +165,7 @@ data %>%
   
   # Mutating percentage strings as doubles
   
-  mutate_each(funs(as.numeric(gsub("%", "", ., fixed = TRUE))/100), -subgroup) %>%
+  mutate_each(funs(as.numeric(gsub("%", "", ., fixed = TRUE))/100), -c(subgroup, district)) %>%
   group_by(district) %>%
   summarize_all(mean) %>%
   select(district:g8_ela, -subgroup) %>%
@@ -167,6 +182,8 @@ data %>%
        x = "Grade",
        y = "Proficiency") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1))
+
+data
 ```
 
 
@@ -297,16 +314,217 @@ plot_data_3 %>%
   labs(title = "Expected Peformance on State Test Results\nOver Time",
        x = "Proficiency Rates",
        y = "",
-       caption = "Source: NYSED (2018)",
-       fill = "Subgroup") +
+       caption = "Source: NYSED (2018)") +
   theme_light()
-  
+
+data_3
+data_3 %>%
+  ggplot(mapping = aes(x = grade, y = proficiency, group = grade)) +
+  geom_boxplot()
 ```
 
 ```{r}
 
 
 
+
+```
+
+```{r}
+library(shiny)
+library(tidyverse)
+library(shinythemes)
+
+# Define UI for application that draws a histogram
+ui <- navbarPage(
+    fluidPage(theme = shinytheme("united")),
+    "How NYC Students of Different Racial Groups Perform Academically Over Time",
+    tabPanel("Comparing Performance by Test",
+             fluidPage(
+                 titlePanel("Comparing Performance by Test"),
+                 sidebarLayout(
+                     sidebarPanel(
+                         selectInput(
+                             "test",
+                             "Choose a 2018 Test",
+                             choices = c("English Language Arts" = "ela", 
+                                         "Math" = "math")
+                         ),
+                         width = 300),
+                     
+                     imageOutput("test_plot")))),
+    
+    tabPanel("Predictions", 
+             titlePanel("Predicting Performance Over Time"),
+             imageOutput("grade"),
+             p("This model predicts how students of specific racial groups will perform on their benchmark tests over time by grade."),
+             h3("Regression Table and Interpretation")),
+    # gt_output("table1")),
+    
+    tabPanel("About", 
+             titlePanel("About"),
+             p("Hi, I'm Hana Kim, a freshman at Harvard College who enjoys data science!"),
+             p("You can reach me at hana_kim@college.harvard.edu."),
+             p("This is the link to my repository: https://github.com/hanarubykim/final-project.git"),
+             h3("Data Sources"),
+             p("Through the New York State Education Department, I collected academic data concerning the 2018 State Test results from the 32 school districts of NYC. Through the New York City Department of Education, I collected data on demographic breakdown for the 2017-2018 academic year, which correlates with the population being surveyed within the former source.")
+    )
+)
+
+# Define server logic required to draw a histogram
+server <- function(input, output) {
+    
+    output$test_plot <- renderImage({
+        ifelse(input$test == "ela",
+               list(
+                   src = "ela.png",
+                   width = 500,
+                   height = 500),
+               list(
+                   src = "math.png",
+                   width = 500,
+                   height = 500))
+
+        deleteFile = FALSE
+    })
+    
+    output$grade <- renderImage({
+        list(src = "grade_prediction.png")
+        deleteFile = FALSE
+    })
+    
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
+
+```
+
+```{r}
+map_data <- data %>%
+  filter(subgroup == "All Students")
+
+nyc_boundaries(geography = "school") %>%
+  left_join(map_data, by = c("school_dist_id" = "district")) %>%
+  ggplot() +
+  geom_sf(aes(fill = g8_ela * 100)) +
+  scale_fill_viridis_c(option = "clarity") +
+  labs(title = "Average District Proficiency For 8th Graders on ELA Examinations",
+       caption = "Source: NYSED (2018)",
+       fill = "Percent Proficient") +
+  theme_void()
+```
+
+```{r}
+race_data <- read_excel(path = "raw_data/demographic-snapshot.xlsx",
+           sheet = 4) %>%
+  clean_names() %>%
+  
+  # Looking at the relevant 2017-2018 demographic data, which represents the
+  # same students who took the 2018 test
+  
+  filter(year == "2017-18") %>%
+  
+  # Only need to see the district and percentages for each racial group
+  
+  select(administrative_district, percent_asian:percent_white) %>%
+  
+  # Removing the preceding "0" from districts 1-9 for easier joining of data
+  
+  mutate(administrative_district = ifelse(administrative_district < 10, sub('.', '', administrative_district), administrative_district))
+
+
+nyc_boundaries(geography = "school") %>%
+  left_join(race_data, by = c("school_dist_id" = "administrative_district")) %>%
+  ggplot() +
+  geom_sf(aes(fill = percent_black * 100)) +
+  scale_fill_viridis_c(option = "clarity",
+                       direction = -1)
+
+race_map_data
+
+
+```
+
+
+
+```{r}
+combined_data <- full_join(data, race_data, by = c("district" = "administrative_district")) %>%
+  drop_na()
+
+# From a scatterplot, we may be able to assume a relationship with academic
+# proficiency performance by students across all racial  groups in relation to
+# the racial makeup of their schools
+
+combined_data %>%
+  ggplot(mapping = aes(x = percent_black, y = g8_math, 
+                       color = subgroup)) +
+  geom_point()
+
+
+# With this model, we can see whether or not the predominant racial makeup of a
+# district actually does affect how students of a racial group perform within
+# that district
+
+fit_3 <- stan_glm(data = combined_data,
+                      formula = g8_math ~ percent_black*subgroup,
+                      family = gaussian,
+                      seed = 3,
+                      refresh = 0)
+
+print(fit_3, detail = FALSE)
+
+
+fit_3 %>%
+  as_tibble() %>%
+  mutate()
+
+
+
+
+
+
+
+
+
+
+print(fit_3, detail = FALSE)
+
+subgroup <- c("All Students", "American Indian or Alaska Native","Asian or Native Hawaiian/Other Pacific Islander", "Black or African American", "Hispanic or Latino", "White", "All Students")
+predom_asian <- c(TRUE, FALSE)
+
+newobs_3 <- expand_grid(subgroup, predom_asian) %>%
+  mutate(names = paste(subgroup, predom_asian, sep = "_"))
+
+pe_4 <- posterior_epred(fit_3,
+                        newdata = newobs_3) %>%
+  as_tibble() %>%
+  set_names(newobs_3$names)
+
+plot_data_4 <- pe_4 %>%
+  pivot_longer(names_to = c("Subgroup", "Subgroup"),
+               names_sep = "_",
+               values_to = "Proficiency",
+               cols = everything()) %>%
+  filter(!Subgroup == "All Students")
+
+
+
+library(gtsummary)
+library(gt)
+
+tbl_regression(fit_1, 
+               intercept = TRUE,
+               estimate_fun = function(x) style_sigfig(x, digits = 3)) %>%
+  
+  as_gt() %>%
+  
+  # Formatting the table neatly and intuitively
+  
+  tab_header(title = md("**Predicting Proficiency on State Exams**"),
+             subtitle = "How Racial Subgroup Affects Predicted Academic Proficiency") %>%
+  tab_source_note(md("Source: NYSED (2018)")) %>% 
+  cols_label(estimate = md("**Parameter**"))
 
 ```
 

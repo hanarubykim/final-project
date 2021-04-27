@@ -1,0 +1,13 @@
+name: shiny_app
+title: shiny_app
+username:
+account: hanarubykim
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4026457
+bundleId: 4515432
+url: https://hanarubykim.shinyapps.io/shiny_app/
+when: 1619323021.25163
+lastSyncTime: 1619323021.25165
+asMultiple: FALSE
+asStatic: FALSE
