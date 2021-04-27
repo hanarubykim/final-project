@@ -58,6 +58,8 @@ plot_data <- pe %>%
                cols = everything()) %>%
   filter(!Subgroup == "All Students")
 
+# Plotting the posteriors
+
 racial_prediction <- plot_data %>% 
   ggplot(aes(x = Proficiency, y = fct_reorder(Subgroup, Proficiency), fill = "black")) +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
@@ -72,6 +74,7 @@ racial_prediction <- plot_data %>%
 
 ggsave("racial_group_pred.png", racial_prediction, width = 10, height = 7)
 
+# Making the posterior distributions more easily accessible when plotting
 grade_data <- data %>% 
   select(-district) %>% 
   pivot_longer(cols = g3_ela:g8_math,
@@ -103,12 +106,16 @@ pe_3 <- posterior_epred(fit_2,
   as_tibble() %>%
   set_names(newobs_3$names)
 
+# Making the posterior distributions more easily accessible when plotting
+
 plot_data_3 <- pe_3 %>%
   pivot_longer(names_to = c("Grade", "Subgroup"),
                names_sep = "_",
                values_to = "Proficiency",
                cols = everything()) %>%
   filter(!Subgroup == "All Students")
+
+# Plotting the posteriors
 
 grade_pred <- plot_data_3 %>%
   ggplot(aes(x = Proficiency, y = fct_reorder(Subgroup, Proficiency),
