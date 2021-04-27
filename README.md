@@ -1,2 +1,4 @@
 # Analyzing Discrepancies Between Students of the NYC Public School System
 For my final project, I will analyze how the race of a student is a predictive factor of their proficiency on benchmark exams. I am using data from the 2017-2018 State Exams as provided by the [New York State Education Department (NYSED)](https://data.nysed.gov). From 3rd grade to 8th grade, all NYC public school students are mandated to take the yearly English Language Arts (ELA) and Math State Exam. I compiled and cleaned the data for the 32 districts of NYC. In addition, I am also using data on the demographics of NYC for the 2017-2018 school year, as provided by the [New York City Department of Education](https://infohub.nyced.org/docs/default-source/default-document-library/demographic-snapshot-2015-16-to-2019-20-(public).xlsx), which describes the students whose test data I am analyzing.
+
+You can view my [Shiny App here](https://hanarubykim.shinyapps.io/final-project/).
