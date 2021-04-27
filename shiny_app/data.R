@@ -58,6 +58,8 @@ filepaths = list("raw_data/NYC_GEOG_DIST_1.xlsx",
                  "raw_data/NYC_GEOG_DIST_31.xlsx",
                  "raw_data/NYC_GEOG_DIST_32.xlsx")
 
+# Creating a function to easily compile the data from 32 different files
+
 grade_proficiency <- function(filepaths, table){
 
   # Accessing data from all 32 NYC Districts
@@ -117,6 +119,8 @@ grade_proficiency <- function(filepaths, table){
   }
   return(new_table)
 }
+
+# Cleaning the data
 
 data <- grade_proficiency(filepaths, table) %>%
   filter(across(everything(), ~ !grepl("—", .))) %>%
