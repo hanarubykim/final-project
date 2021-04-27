@@ -182,7 +182,7 @@ ela_test_plot <- data %>%
        x = "Grade",
        y = "Proficiency",
        caption = "Source: NYSED (2018)",
-       fill = "Racial Subgroup")
+       color = "Racial Subgroup")
 
 math_test_plot <- data %>%
   
@@ -211,7 +211,7 @@ math_test_plot <- data %>%
        x = "Grade",
        y = "Proficiency",
        caption = "Source: NYSED (2018)",
-       fill = "Racial Subgroup")
+       color = "Racial Subgroup")
 
 test_data <- data %>%
   select(-district) %>%
