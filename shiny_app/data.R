@@ -8,6 +8,9 @@ library(broom.mixed)
 library(ggthemes)
 library(gt)
 library(gtsummary)
+library(nycgeo)
+library(sf)
+library(patchwork)
 
 
 # table will be the starting framework containing the relevant subgroups so that
@@ -240,7 +243,7 @@ table_1 <- tbl_regression(saved_fit_1,
   
   # Formatting the table neatly and intuitively
   
-  tab_header(title = md("**Predicting Proficiency on State Exams**"),
+  tab_header(title = md("**Predicting Proficiency Percentage of Racial Groups on State Exams**"),
              subtitle = "How Racial Subgroup Affects Predicted Academic Proficiency") %>%
   tab_source_note(md("Source: NYSED (2018)")) %>% 
   cols_label(estimate = md("**Parameter**"))
@@ -335,3 +338,110 @@ combined_data %>%
 #                   refresh = 0)
 
 
+district_asian <- combined_data %>%
+  filter(!subgroup == "All Students") %>%
+  ggplot(mapping = aes(x = percent_asian, y = g8_math, 
+                       color = subgroup)) +
+  geom_point() +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Asian Students",
+       x = "Percentage of Asian Students in District",
+       y = "Proficiency Rate of Subgroup",
+       caption = "Sources: NYSED (2018) and NYC DOE (2018)",
+       color = "Racial Subgroup") +
+  theme_light() +
+  geom_smooth(mapping = aes(group = subgroup), method = "lm", formula =  'y ~ x', se = FALSE)
+
+district_black <- combined_data %>%
+  filter(!subgroup == "All Students") %>%
+  ggplot(mapping = aes(x = percent_black, y = g8_math, 
+                       color = subgroup)) +
+  geom_point() +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Black Students",
+       x = "Percentage of Black Students in District",
+       y = "Proficiency Rate of Subgroup",
+       caption = "Sources: NYSED (2018) and NYC DOE (2018)",
+       color = "Racial Subgroup") +
+  theme_light() +
+  geom_smooth(mapping = aes(group = subgroup), method = "lm", formula =  'y ~ x', se = FALSE)
+
+district_white <- combined_data %>%
+  filter(!subgroup == "All Students") %>%
+  ggplot(mapping = aes(x = percent_white, y = g8_math, 
+                       color = subgroup)) +
+  geom_point() +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of White Students",
+       x = "Percentage of White Students in District",
+       y = "Proficiency Rate of Subgroup",
+       caption = "Sources: NYSED (2018) and NYC DOE (2018)",
+       color = "Racial Subgroup") +
+  theme_light() +
+  geom_smooth(mapping = aes(group = subgroup), method = "lm", formula =  'y ~ x', se = FALSE)
+
+district_hispanic <- combined_data %>%
+  filter(!subgroup == "All Students") %>%
+  ggplot(mapping = aes(x = percent_asian, y = g8_math, 
+                       color = subgroup)) +
+  geom_point() +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Hispanic Students",
+       x = "Percentage of Hispanic Students in District",
+       y = "Proficiency Rate of Subgroup",
+       caption = "Sources: NYSED (2018) and NYC DOE (2018)",
+       color = "Racial Subgroup") +
+  theme_light() +
+  geom_smooth(mapping = aes(group = subgroup), method = "lm", formula =  'y ~ x', se = FALSE)
+
+district_na <- combined_data %>%
+  filter(!subgroup == "All Students") %>%
+  ggplot(mapping = aes(x = percent_asian, y = g8_math, 
+                       color = subgroup)) +
+  geom_point() +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Native American Students",
+       x = "Percentage of Native American Students in District",
+       y = "Proficiency Rate of Subgroup",
+       caption = "Sources: NYSED (2018) and NYC DOE (2018)",
+       color = "Racial Subgroup") +
+  theme_light() +
+  geom_smooth(mapping = aes(group = subgroup), method = "lm", formula =  'y ~ x', se = FALSE)
+
+# Looking at overall proficiencies for districts when mapping
+
+map_data <- data %>%
+  filter(subgroup == "All Students")
+
+ela_map <- nyc_boundaries(geography = "school") %>%
+  
+  # Joining based on district with provided geography
+  
+  left_join(map_data, by = c("school_dist_id" = "district")) %>%
+  ggplot() +
+  geom_sf(aes(fill = g8_ela * 100)) +
+  scale_fill_viridis_c() +
+  labs(title = "English Language Arts Exam",
+       caption = "Source: NYSED (2018) and NYC DOE (2018)",
+       fill = "Percent Proficient") +
+  theme_void()
+
+math_map <- nyc_boundaries(geography = "school") %>%
+  left_join(map_data, by = c("school_dist_id" = "district")) %>%
+  ggplot() +
+  geom_sf(aes(fill = g8_math * 100)) +
+  scale_fill_viridis_c() +
+  labs(title = "Math Exam",
+       fill = "Percent Proficient") +
+  theme_void()
+
+# Combine the two plots and add titles for the combined plots
+
+final_map <- ela_map + math_map +
+  plot_annotation(title = "Average District Proficiency For 8th Graders on State Examinations",
+                  caption = "Source: NYSED (2018) and NYC DOE (2018)")

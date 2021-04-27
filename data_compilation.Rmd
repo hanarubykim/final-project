@@ -410,7 +410,19 @@ nyc_boundaries(geography = "school") %>%
   geom_sf(aes(fill = g8_ela * 100)) +
   scale_fill_viridis_c(option = "clarity") +
   labs(title = "Average District Proficiency For 8th Graders on ELA Examinations",
-       caption = "Source: NYSED (2018)",
+       subtitle = "The districts of the Bronx, a predominantly Black and Hispanic borough, appears to have the lowest percentages of proficiency.",
+       caption = "Source: NYSED (2018) and NYC DOE (2018)",
+       fill = "Percent Proficient") +
+  theme_void()
+
+nyc_boundaries(geography = "school") %>%
+  left_join(map_data, by = c("school_dist_id" = "district")) %>%
+  ggplot() +
+  geom_sf(aes(fill = g8_math * 100)) +
+  scale_fill_viridis_c(option = "clarity") +
+  labs(title = "Average District Proficiency For 8th Graders on Math Examinations",
+       subtitle = "The districts of the Bronx, a predominantly Black and Hispanic borough, appears to have the lowest percentages of proficiency.",
+       caption = "Source: NYSED (2018) and NYC DOE (2018)",
        fill = "Percent Proficient") +
   theme_void()
 ```
@@ -457,9 +469,37 @@ combined_data <- full_join(data, race_data, by = c("district" = "administrative_
 # the racial makeup of their schools
 
 combined_data %>%
+  filter(!subgroup == "All Students") %>%
   ggplot(mapping = aes(x = percent_black, y = g8_math, 
                        color = subgroup)) +
-  geom_point()
+  geom_point() +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Black Students",
+       subtitle = "For districts with higher percentages of Black students, there is a marked decrease in percentage of proficient students in subgroups that are predicted to have high percentages of proficiency.",
+       x = "Percentage of Black Students in District",
+       y = "Proficiency Rate of Subgroup",
+       caption = "Sources: NYSED (2018) and NYC DOE (2018)",
+       color = "Racial Subgroup") +
+  theme_light() +
+  geom_smooth(mapping = aes(group = subgroup), method = "lm", se = FALSE)
+
+
+combined_data %>%
+  filter(!subgroup == "All Students") %>%
+  ggplot(mapping = aes(x = percent_white, y = g8_math, 
+                       color = subgroup)) +
+  geom_point() +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Black Students",
+       subtitle = "For districts with higher percentages of Black students, there is a marked decrease in percentage of proficient students in subgroups that are predicted to have high percentages of proficiency.",
+       x = "Percentage of Black Students in District",
+       y = "Proficiency Rate of Subgroup",
+       caption = "Sources: NYSED (2018) and NYC DOE (2018)",
+       color = "Racial Subgroup") +
+  theme_light() +
+  geom_smooth(mapping = aes(group = subgroup), method = "lm", se = FALSE)
 
 
 # With this model, we can see whether or not the predominant racial makeup of a
