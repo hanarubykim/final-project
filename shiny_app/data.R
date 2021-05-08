@@ -4,13 +4,6 @@ library(janitor)
 library(openxlsx)
 library(ggdist)
 library(broom.mixed)
-library(ggthemes)
-library(gt)
-library(gtsummary)
-library(nycgeo)
-library(sf)
-library(patchwork)
-library(webshot)
 
 
 # table will be the starting framework containing the relevant subgroups so that

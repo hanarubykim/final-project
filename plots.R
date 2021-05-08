@@ -57,6 +57,10 @@ ela_animation_plot <- animation_data %>%
                        fill = as.factor(category))) +
   geom_col() +
   theme_light() +
+  theme(legend.position = "none",
+        plot.title = element_text(size = 20, face = "bold"),
+        axis.text= element_text(size=14),
+        axis.title = element_text(size=14)) +
   transition_states(states = year) +
   ease_aes("cubic-in-out") +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
@@ -74,6 +78,10 @@ math_animation_plot <- animation_data %>%
                        fill = as.factor(category))) +
   geom_col() +
   theme_light() +
+  theme(legend.position = "none",
+        plot.title = element_text(size = 20, face = "bold"),
+        axis.text=element_text(size=14),
+        axis.title = element_text(size=14)) +
   transition_states(states = year) +
   ease_aes("cubic-in-out") +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
@@ -91,9 +99,11 @@ district_asian <- data %>%
   ggplot(mapping = aes(x = percent_asian, y = math_proficient, 
                        color = category)) +
   geom_point() +
+  theme(plot.title = element_text(size = 16, face = "bold"),
+        axis.text=element_text(size=12)) +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Asian Students\nWithin A District",
+  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Asian Students Within A District",
        x = "Percentage of Asian Students in District",
        y = "Proficiency Rate of Subgroup",
        caption = "Sources: NYSED (2018) and NYC DOE (2018)",
@@ -106,9 +116,11 @@ district_black <- data %>%
   ggplot(mapping = aes(x = percent_black, y = math_proficient, 
                        color = category)) +
   geom_point() +
+  theme(plot.title = element_text(size = 16, face = "bold"),
+        axis.text=element_text(size=12)) +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Black Students\nWithin District",
+  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Black Students Within District",
        x = "Percentage of Black Students in District",
        y = "Proficiency Rate of Subgroup",
        caption = "Sources: NYSED (2018) and NYC DOE (2018)",
@@ -121,9 +133,11 @@ district_white <- data %>%
   ggplot(mapping = aes(x = percent_white, y = math_proficient, 
                        color = category)) +
   geom_point() +
+  theme(plot.title = element_text(size = 16, face = "bold"),
+        axis.text=element_text(size=12)) +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of White Students\nWithin District",
+  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of White Students Within District",
        x = "Percentage of White Students in District",
        y = "Proficiency Rate of Subgroup",
        caption = "Sources: NYSED (2018) and NYC DOE (2018)",
@@ -136,9 +150,11 @@ district_hispanic <- data %>%
   ggplot(mapping = aes(x = percent_hispanic, y = math_proficient, 
                        color = category)) +
   geom_point() +
+  theme(plot.title = element_text(size = 16, face = "bold"),
+        axis.text=element_text(size=12)) +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Hispanic Students\nWithin District",
+  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Hispanic Students Within District",
        x = "Percentage of Hispanic Students in District",
        y = "Proficiency Rate of Subgroup",
        caption = "Sources: NYSED (2018) and NYC DOE (2018)",

@@ -9,91 +9,94 @@ source(file = "plots.R")
 # Define UI for application that draws a histogram
 ui <- navbarPage(theme = shinytheme("flatly"),
                  "How NYC Students of Different Racial Groups Perform Academically Over Time",
-                 tabPanel("Comparing Performance by Test",
-                          fluidPage(
-                              titlePanel("Introduction"),
-                              h3("Understanding the New York City School System"),
-                              p("The City School District of the City of New York is the largest school system in the United States, comprised of over 1.1 million students taught in more than 1,800 separate schools. Beginning from the third grade up until the 8th, students in NYC take two yearly benchmark exams: the English Language Arts (ELA) exam and the Math exam. The NYC Department of Education (DOE) uses these benchmark exams to assess whether students are deemed to be performing \"proficiently\" academically."),
-                              p("Based on each student within a district, the DOE aggregates data on the overall proficiency rate for various subgroups. These subgroups include those based on income, race, and disability. In my analysis, I will be focusing on race as a factor of academic proficiency."),
-                              h3("Visualizing Disparities in Academic Proficiency By District"),
-                              plotOutput("district_map"),
-                              p("These maps depict the overall proficiencies of each district. Despite the fact that public NYC schools all have the same curriculum, we evidently see disparities in academic performance between districts. We can note that certain regions of NYC in particular seem to be performing less proficiently. For instance, the Bronx, a predominantly Black and Hispanic borough, appears to have the lowest percentages of proficiency as opposed to Staten Island, a predominantly white borough. Through my analysis, I will examine how the respective racial subgroups of students and the overall racial composition of these districts may explain the disparities of proficiency between districts."),
+                 tabsetPanel(
+                     selected = "Analysis",
+                     tabPanel("Comparing Performance by Test",
+                              fluidPage(
+                                  titlePanel("Introduction"),
+                                  h3("Understanding the New York City School System"),
+                                  p("The City School District of the City of New York is the largest school system in the United States, comprised of over 1.1 million students taught in more than 1,800 separate schools. Beginning from the third grade up until the 8th, students in NYC take two yearly benchmark exams: the English Language Arts (ELA) exam and the Math exam. The NYC Department of Education (DOE) uses these benchmark exams to assess whether students are deemed to be performing \"proficiently\" academically."),
+                                  p("Based on each student within a district, the DOE aggregates data on the overall proficiency rate for various subgroups. These subgroups include those based on income, race, and disability. In my analysis, I will be focusing on race as a factor of academic proficiency."),
+                                  h3("Visualizing Disparities in Academic Proficiency By District"),
+                                  plotOutput("district_map"),
+                                  p("These maps depict the overall proficiencies of each district. Despite the fact that public NYC schools all have the same curriculum, we evidently see disparities in academic performance between districts. We can note that certain regions of NYC in particular seem to be performing less proficiently. For instance, the Bronx, a predominantly Black and Hispanic borough, appears to have the lowest percentages of proficiency as opposed to Staten Island, a predominantly white borough. Through my analysis, I will examine how the respective racial subgroups of students and the overall racial composition of these districts may explain the disparities of proficiency between districts."),
+                                  br(),
+                                  h3("Comparing Performance by Test"),
+                                  p("Here, we can see the overall academic proficiency by racial subgroup for the years of 2013-2019. The rows are sorted as such to dynamically arrange themselves in accordance to highest to lowest proficiencies. We can see that during these 7 years, there has been a certain trend maintained of which racial subgroups as a whole have higher and lower percentages of academic proficiencies on their exams."),
+                                  sidebarLayout(
+                                      sidebarPanel(
+                                          selectInput(
+                                              inputId = "test",
+                                              label = "Choose a test",
+                                              choices = c("English Language Arts" = "ela", 
+                                                          "Math" = "math"))),
+                                      mainPanel(imageOutput("test_plot"))),
+                              )
+                     ),
+                     tabPanel("Analysis",
+                              titlePanel("Predicting Proficiency Over Time For Each Racial Group"),
+                              h3("Looking at Overall Proficiency By Each Racial Group By Grade"),
+                              splitLayout(cellWidths = c("50%", "50%"),
+                                          imageOutput("overall_ela",
+                                                      width = 450,
+                                                      height = 550),
+                                          imageOutput("overall_math",
+                                                      width = 450,
+                                                      height = 550)),
+                              p("For my models, I analyzed each racial subgroup of students within the 32 districts and the respective percentages of each subgroup that were deemed to have performed proficiently on their state exams (ELA or math). As shown in the subsequent plot above, there is a large disparity predicted between students of different racial groups in terms of the percentage of each racial group being able to meet academic proficiency standards for both math and ELA tests. The table shows the parameters for each subgroup as generated by my model."),
                               br(),
-                              h3("Comparing Performance by Test"),
-                              p("Here, we can see the overall academic proficiency by racial subgroup for the years of 2013-2019. The rows are sorted as such to dynamically arrange themselves in accordance to highest to lowest proficiencies. We can see that during these 7 years, there has been a certain trend maintained of which racial subgroups as a whole have higher and lower percentages of academic proficiencies on their exams."),
+                              withMathJax(),
+                              
+                              # Looked at Salomé Garnier's final project from a
+                              # previous semester to help with formatting
+                              
+                              splitLayout(cellWidths = c("50%", "50%"),
+                                          p('$$ elaproficient_i = \\beta_0 + \\beta_1category_i + 
+                          \\beta_2grade_i $$'),
+                                          p('$$ mathproficient_i = \\beta_0 + \\beta_1category_i + 
+                          \\beta_2grade_i $$')),
+                              splitLayout(cellWidths = c("50%", "50%"),
+                                          imageOutput("table_1",
+                                                      width = 650,
+                                                      height = 450),
+                                          imageOutput("table_2",
+                                                      width = 650,
+                                                      height = 500)),
+                              p("The two models both look at grade and category (referring to racial subgroup) as factors of proficiency on either the ELA or math benchmark exams. The Intercept of the models represent Asian students in the third grade. If we were to look at the ELA proficiency model, we can look at this Intercept to say that we predict that 50.4% of Asian students will perform proficiently on their ELA exams in the third grade. As we look at the parameters for the following racial subgroups, we are able to see how our prediction for the percentage proficient will change depending on the racial subgroup. A positive parameter value means a higher proficiency percentage relative to the prediction for Asian students while a negative parameter value means a lower percentage. For instance, the parameter for Hispanic students is estimated to be -0.207. This means that in comparison to the Asian students as a whole, this subgroup in particular is predicted to be performing 20.7% less proficiently as a racial subgroup on the state exam, which totals to about 29.7%. Hence, when looking at the plot, we see that the distribution for the performance of Hispanic students during the 3rd grade centers around this 29.7% mark."),
+                              p("We can look at the following parameters for the interaction between racial subgroup and grade to analyze predicted academic proficiencies by racial subgroups in more nuanced manner by focusing on the performance of students of different racial groups over time. To understand how to use these parameters, we can look, for instance at the interaction between category and grade for Black students. The interaction parameter is recorded to be -0.002. As we are still considering Asian students as the \"baseline\" for our subsequent calculations, we need to recognize that the -0.002 is the difference in the change between proficiency within Asian and Black students as they ascend a grade. So, we must add the -0.002 to the baseline of -0.025 to get a total of -0.027, which tells us that for every grade ascended, a Black student is 2.7% less likely to score proficiently on their math examination. If we refer back to the \"baseline\", an Asian student, in comparison, is 2.5% less likely to score proficiently on their math examination for every grade ascended. We can see that overall, academic proficiency on math examinations for all racial subgroups are predicted to fall as they ascend grades. However, it should be noted that there is a huge disparity in proficiency even early on between racial subgroups. Around 37.1% of Black students in the third grade are predicted to be performing proficiently, in comparison to 71.8% of their Asian peers."),
+                              br(),
+                              h3("Considering the Composition of Districts As A Factor of the Performance of Racial Groups"),
+                              p("We know that overall, certain racial subgroups of students are expected to perform better on their state exams. However, do these racial subgroups perform consistently? That is, would an Asian or Hispanic student perform the state in a majority white or majority black district? To answer this question, we can create a model looking at how racial subgroups perform depending on the racial composition of their district."),
                               sidebarLayout(
                                   sidebarPanel(
                                       selectInput(
-                                          inputId = "test",
-                                          label = "Choose a test",
-                                          choices = c("English Language Arts" = "ela", 
-                                            "Math" = "math"))),
-                                      mainPanel(imageOutput("test_plot"))),
-                          )
-                 ),
-                 tabPanel("Analysis",
-                          titlePanel("Predicting Proficiency Over Time For Each Racial Group"),
-                          h3("Looking at Overall Proficiency By Each Racial Group By Grade"),
-                          splitLayout(cellWidths = c("50%", "50%"),
-                                      imageOutput("overall_ela",
-                                                  width = 650,
-                                                  height = 450),
-                                      imageOutput("overall_math",
-                                                  width = 650,
-                                                  height = 500)),
-                          p("For my models, I analyzed each racial subgroup of students within the 32 districts and the respective percentages of each subgroup that were deemed to have performed proficiently on their state exams (ELA or math). As shown in the subsequent plot above, there is a large disparity predicted between students of different racial groups in terms of the percentage of each racial group being able to meet academic proficiency standards for both math and ELA tests. The table shows the parameters for each subgroup as generated by my model."),
-                          br(),
-                          withMathJax(),
-                          
-                          # Looked at Salomé Garnier's final project from a
-                          # previous semester to help with formatting
-                          
-                          splitLayout(cellWidths = c("50%", "50%"),
-                                      p('$$ elaproficient_i = \\beta_0 + \\beta_1category_i + 
-                          \\beta_2grade_i $$'),
-                                      p('$$ mathproficient_i = \\beta_0 + \\beta_1category_i + 
-                          \\beta_2grade_i $$')),
-                          splitLayout(cellWidths = c("50%", "50%"),
-                                      imageOutput("table_1",
-                                                  width = 650,
-                                                  height = 450),
-                                      imageOutput("table_2",
-                                                  width = 650,
-                                                  height = 500)),
-                          p("The two models both look at grade and category (referring to racial subgroup) as factors of proficiency on either the ELA or math benchmark exams. The Intercept of the models represent Asian students in the third grade. If we were to look at the ELA proficiency model, we can look at this Intercept to say that we predict that 50.4% of Asian students will perform proficiently on their ELA exams in the third grade. As we look at the parameters for the following racial subgroups, we are able to see how our prediction for the percentage proficient will change depending on the racial subgroup. A positive parameter value means a higher proficiency percentage relative to the prediction for Asian students while a negative parameter value means a lower percentage. For instance, the parameter for Hispanic students is estimated to be -0.207. This means that in comparison to the Asian students as a whole, this subgroup in particular is predicted to be performing 20.7% less proficiently as a racial subgroup on the state exam, which totals to about 29.7%. Hence, when looking at the plot, we see that the distribution for the performance of Hispanic students during the 3rd grade centers around this 29.7% mark."),
-                          p("We can look at the following parameters for the interaction between racial subgroup and grade to analyze predicted academic proficiencies by racial subgroups in more nuanced manner by focusing on the performance of students of different racial groups over time. To understand how to use these parameters, we can look, for instance at the interaction between category and grade for Black students. The interaction parameter is recorded to be -0.002. As we are still considering Asian students as the \"baseline\" for our subsequent calculations, we need to recognize that the -0.002 is the difference in the change between proficiency within Asian and Black students as they ascend a grade. So, we must add the -0.002 to the baseline of -0.025 to get a total of -0.027, which tells us that for every grade ascended, a Black student is 2.7% less likely to score proficiently on their math examination. If we refer back to the \"baseline\", an Asian student, in comparison, is 2.5% less likely to score proficiently on their math examination for every grade ascended. We can see that overall, academic proficiency on math examinations for all racial subgroups are predicted to fall as they ascend grades. However, it should be noted that there is a huge disparity in proficiency even early on between racial subgroups. Around 37.1% of Black students in the third grade are predicted to be performing proficiently, in comparison to 71.8% of their Asian peers."),
-                          br(),
-                          h3("Considering the Composition of Districts As A Factor of the Performance of Racial Groups"),
-                          p("We know that overall, certain racial subgroups of students are expected to perform better on their state exams. However, do these racial subgroups perform consistently? That is, would an Asian or Hispanic student perform the state in a majority white or majority black district? To answer this question, we can create a model looking at how racial subgroups perform depending on the racial composition of their district."),
-                          sidebarLayout(
-                              sidebarPanel(
-                                  selectInput(
-                                      inputId = "race",
-                                      label = "Choose A Racial Subgroup to Look At As A Factor",
-                                      choices = c("Asian" = "asian",
-                                                  "Black" = "black",
-                                                  "Hispanic" = "hispanic",
-                                                  "White" = "white"))),
-                              mainPanel(plotOutput("district"))),
-                          p("If we take a look at the plot looking at academic performance of racial subgroups based on the percentage of Black students within the district, we see that there is a negative linear trend for subgroups that are expected to have a higher proficiency percentage, such as Asian or white students. While these students still outperform their peers of other racial subgroups at schools with higher percentages of Black students, we do see a marked decrease in proficiency percentages across these subgroups."),
-                          p("Then, if we take a look at the plot looking at academic performance of racial subgroups based on the percentage of White students within the district, we see that there is a positive linear trend for subgroups that are expected to have a higher proficiency percentage. However, Black students appear to perform consistently regardless of the percentage of White students in their district.")
-                 ),
-                 tabPanel("Conclusions",
-                          titlePanel("Implications of the Data, Models, and Plots"),
-                          h3("How Is Race Predictive of Academic Proficiency As A Student in NYC? Why Is This Important?"),
-                          p("The disparity of academic proficiency of students from different racial groups may help explain the disparity between academic proficiency between academic districts of NYC. We see that Black and Hispanic students especially are performing at worse rates on their benchmark exams, even early on. This is a crucial issue that needs to be addressed considering that the majority of the students in the public school system are Black and Hispanic."),
-                          h3("What Factors Might Explain This Relationship?"),
-                          p("The NYC public school system is not only the largest in the United States, but is also the most segregated. According to the New York City Council, \"in New York City public schools, 74.6% of black and Hispanic students attend a school with less than 10% white students. Additionally, 34.3% of white students attend a school with more than 50% white students.\" As we saw when considering the composition of districts as a factor affecting the performance of racial groups, particularly in schools with increasing percentages of white students, there was an uptick in academic performance for several racial groups. On the other hand, for schools with increasing percentages of Black students, there was a downwards trend in academic performance for several groups. These results show that the academic performance of racial groups are not independent of their districts, and prompts further investigation on the educational disparities between districts.")
-                 ),
-                 tabPanel("About", 
-                          titlePanel("About"),
-                          h3("Project Background and Motivations"),
-                          p("This issue is significant to me in particular as an alumni of the NYC public schooling system, but Stuyvesant High School in particular, one of the eight specialized high schools in NYC. For a specialized high school, admission is granted only through a standardized test called the Specialized High School Aptitude Test (SHSAT) which is normally taken in the fall by 8th graders. My former high school requires the highest cutoff score for SHSAT to be admitted, and such admissions procedure has turned out disproportionately low numbers in admission of Black and Hispanic students. I wanted to see if the benchmark exams required of every NYC student for six years could offer some insight onto the current state of the NYC school system today."),
-                          h3("Data Sources"),
-                          p("My data comes from the New York State Education Department and the New York City Education Department, and I am using 32 district reports to make a comprehensive report on all of the districts within NYC."),
-                          h3("About Me"),
-                          p("Hi, I'm Hana Kim, a freshman at Harvard College who enjoys data science! You can reach me at hana_kim@college.harvard.edu."),
-                          uiOutput("link"),
+                                          inputId = "race",
+                                          label = "Choose A Racial Subgroup to Look At As A Factor",
+                                          choices = c("Asian" = "asian",
+                                                      "Black" = "black",
+                                                      "Hispanic" = "hispanic",
+                                                      "White" = "white"))),
+                                  mainPanel(plotOutput("district"))),
+                              p("If we take a look at the plot looking at academic performance of racial subgroups based on the percentage of Black students within the district, we see that there is a negative linear trend for subgroups that are expected to have a higher proficiency percentage, such as Asian or white students. While these students still outperform their peers of other racial subgroups at schools with higher percentages of Black students, we do see a marked decrease in proficiency percentages across these subgroups."),
+                              p("Then, if we take a look at the plot looking at academic performance of racial subgroups based on the percentage of White students within the district, we see that there is a positive linear trend for subgroups that are expected to have a higher proficiency percentage. However, Black students appear to perform consistently regardless of the percentage of White students in their district.")
+                     ),
+                     tabPanel("Conclusions",
+                              titlePanel("Implications of the Data, Models, and Plots"),
+                              h3("How Is Race Predictive of Academic Proficiency As A Student in NYC? Why Is This Important?"),
+                              p("The disparity of academic proficiency of students from different racial groups may help explain the disparity between academic proficiency between academic districts of NYC. We see that Black and Hispanic students especially are performing at worse rates on their benchmark exams, even early on. This is a crucial issue that needs to be addressed considering that the majority of the students in the public school system are Black and Hispanic."),
+                              h3("What Factors Might Explain This Relationship?"),
+                              p("The NYC public school system is not only the largest in the United States, but is also the most segregated. According to the New York City Council, \"in New York City public schools, 74.6% of black and Hispanic students attend a school with less than 10% white students. Additionally, 34.3% of white students attend a school with more than 50% white students.\" As we saw when considering the composition of districts as a factor affecting the performance of racial groups, particularly in schools with increasing percentages of white students, there was an uptick in academic performance for several racial groups. On the other hand, for schools with increasing percentages of Black students, there was a downwards trend in academic performance for several groups. These results show that the academic performance of racial groups are not independent of their districts, and prompts further investigation on the educational disparities between districts.")
+                     ),
+                     tabPanel("About", 
+                              titlePanel("About"),
+                              h3("Project Background and Motivations"),
+                              p("This issue is significant to me in particular as an alumni of the NYC public schooling system, but Stuyvesant High School in particular, one of the eight specialized high schools in NYC. For a specialized high school, admission is granted only through a standardized test called the Specialized High School Aptitude Test (SHSAT) which is normally taken in the fall by 8th graders. My former high school requires the highest cutoff score for SHSAT to be admitted, and such admissions procedure has turned out disproportionately low numbers in admission of Black and Hispanic students. I wanted to see if the benchmark exams required of every NYC student for six years could offer some insight onto the current state of the NYC school system today."),
+                              h3("Data Sources"),
+                              p("My data comes from the New York State Education Department and the New York City Education Department. From the New York State Department, I have collected data on demographics of the districts. From the New York City Education Department, I have collected data on student performance on both overall districts and specific racial subgroups 2018 benchmark exams, along with data from 2013-2019 on student performance by racial subgroup on the benchmark exams."),
+                              h3("About Me"),
+                              p("Hi, I'm Hana Kim, a freshman at Harvard College who enjoys data science! You can reach me at hana_kim@college.harvard.edu."),
+                              uiOutput("link"),
+                     )
                  )
 )
 
@@ -119,15 +122,15 @@ server <- function(input, output) {
     output$overall_ela <- renderImage({
         list(
             src = "overall_ela.png",
-            width = 650,
-            height = 450)
+            width = 600,
+            height = 400)
     })
     
     output$overall_math <- renderImage({
         list(
             src = "overall_math.png",
-            width = 650,
-            height = 450)
+            width = 600,
+            height = 400)
     })
     
     output$table_1 <- renderImage({
@@ -162,7 +165,6 @@ server <- function(input, output) {
         }
     })
 }
-
 
 # Run the application 
 shinyApp(ui = ui, server = server)

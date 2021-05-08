@@ -1,0 +1,14 @@
+name: racial-academic-disparities
+title: racial-academic-disparities
+username:
+account: hanarubykim
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4098281
+bundleId: 4572834
+url: https://hanarubykim.shinyapps.io/racial-academic-disparities/
+when: 1620444188.79246
+lastSyncTime: 1620444188.79248
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: models.R
