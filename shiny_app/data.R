@@ -266,13 +266,10 @@ animation_data <- test_data %>%
 
 pred_test <- test_data %>%
   
-  # Recognizing grade as a number
+  # Recognizing grade as a number, but must filter All Grades first because it
+  # will be converted to NA because of the type conversion
   
-  mutate(grade = as.numeric(grade)) %>%
-  
-  # When grade == "All Grades", it will be converted to NA because of the type
-  # conversion, so need to drop these rows
-  
-  drop_na()
+  filter(!grade == "All Grades") %>%
+  mutate(grade = as.numeric(grade))
 
 

@@ -46,7 +46,7 @@ math_map <- nyc_boundaries(geography = "school") %>%
 # Combine the two plots and add titles for the combined plots
 
 final_map <- ela_map + math_map +
-  plot_annotation(title = "Average District Proficiency For 8th Graders on State Examinations",
+  plot_annotation(title = "Average District Proficiency For 8th Graders on 2018 State Examinations",
                   caption = "Source: NYSED (2018) and NYC DOE (2018)")
 
 # Visualizing the overall citywide subgroup proficiency rates by year
@@ -93,7 +93,7 @@ district_asian <- data %>%
   geom_point() +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Asian Students",
+  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Asian Students\nWithin A District",
        x = "Percentage of Asian Students in District",
        y = "Proficiency Rate of Subgroup",
        caption = "Sources: NYSED (2018) and NYC DOE (2018)",
@@ -108,7 +108,7 @@ district_black <- data %>%
   geom_point() +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Black Students",
+  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Black Students\nWithin District",
        x = "Percentage of Black Students in District",
        y = "Proficiency Rate of Subgroup",
        caption = "Sources: NYSED (2018) and NYC DOE (2018)",
@@ -123,7 +123,7 @@ district_white <- data %>%
   geom_point() +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of White Students",
+  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of White Students\nWithin District",
        x = "Percentage of White Students in District",
        y = "Proficiency Rate of Subgroup",
        caption = "Sources: NYSED (2018) and NYC DOE (2018)",
@@ -138,7 +138,7 @@ district_hispanic <- data %>%
   geom_point() +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Hispanic Students",
+  labs(title = "Proficiency Percentages of Racial Subgroups Relative to Percentage of Hispanic Students\nWithin District",
        x = "Percentage of Hispanic Students in District",
        y = "Proficiency Rate of Subgroup",
        caption = "Sources: NYSED (2018) and NYC DOE (2018)",

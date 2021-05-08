@@ -28,7 +28,7 @@ grade <- c(3, 4, 5, 6, 7, 8)
 
 # Creating a regression table to see the parameter values and observe the model
 
-table_1 <- tbl_regression(fit_1,
+table_1 <- tbl_regression(fit_3,
                           intercept = TRUE,
                           estimate_fun = function(x) style_sigfig(x, digits = 3)) %>%
   
@@ -37,7 +37,7 @@ table_1 <- tbl_regression(fit_1,
   # Formatting the table neatly and intuitively
   
   tab_header(title = md("**Predicting ELA Proficiency Percentage of Racial Groups on State Exams**"),
-             subtitle = "How Racial Subgroup Affects Predicted Proficiency") %>%
+             subtitle = "How Racial Subgroup Affects Predicted Proficiency for Each Grade") %>%
   tab_source_note(md("Source: NYCED (2019)")) %>%
   cols_label(estimate = md("**Parameter**"))
 
@@ -89,6 +89,26 @@ fit_4 <- stan_glm(pred_test,
                   seed = 3,
                   refresh = 0)
 
+# Creating a regression table to see the parameter values and observe the model
+
+table_2 <- tbl_regression(fit_4,
+                          intercept = TRUE,
+                          estimate_fun = function(x) style_sigfig(x, digits = 3)) %>%
+  
+  as_gt() %>%
+  
+  # Formatting the table neatly and intuitively
+  
+  tab_header(title = md("**Predicting Math Proficiency Percentage of Racial Groups on State Exams**"),
+             subtitle = "How Racial Subgroup Affects Predicted Proficiency for Each Grade") %>%
+  tab_source_note(md("Source: NYCED (2019)")) %>%
+  cols_label(estimate = md("**Parameter**"))
+
+# While saving my fit as an RDS file and creating the table would be preferable,
+# doing so causes a deployment error. Using gtsave as an alternative.
+
+gtsave(table_2, "table_2.png")
+
 pe_4 <- posterior_epred(fit_4,
                         
                         # Using the same tibble because we are looking at the
@@ -117,7 +137,7 @@ plot_4 <- plot4_data %>%
   labs(title = "Expected Peformance on Math State Test Results Over Time by Racial Subgroup",
        x = "Proficiency Rates",
        y = "",
-       caption = "Source: NYSED") +
+       caption = "Source: NYCED (2019)") +
   theme_light()
 
 ggsave("overall_math.png", plot_4, width = 8, height = 5)
